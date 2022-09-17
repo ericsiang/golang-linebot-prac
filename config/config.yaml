@@ -4,6 +4,6 @@ database:
   password: "123456"
   port: 27017
 
-line:
+linebot:
   channelSecret: "14f7099d3cef35b36f5ca90fd0fb0802"
   channelAccessToken: "HhSjFqZeAhbPoArr0vZAuq+1Ri+pdm2Qtp/lH6f7kIw3KB7bfdZorbY8GO5ug/k7YYCE1KJGQ0SjFzf3Ai0Yj4R3M4IRQYsWgUWa8FzwjvrQ5VdhOisi9jJz6K5OlbHLJoIUgBELtuW5YTdtgC6ZWgdB04t89/1O/w1cDnyilFU="
