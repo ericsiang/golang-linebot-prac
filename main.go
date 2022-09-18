@@ -9,6 +9,8 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 	"homework/command"
+	"homework/mongodb"
+	"log"
 )
 
 var config *viper.Viper
@@ -16,7 +18,13 @@ var config *viper.Viper
 func main() {
 	command.DockerUp()
 	config := initConfigure()
-	fmt.Println(config)
+	dsn := fmt.Sprintf("mongodb://%s:%s@%s:%d", config.Get("database.user"), config.Get("database.password"), config.Get("database.host"), config.Get("database.port"))
+	client, ctx, err := mongodb.ConnectMongoDb(dsn)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(client, ctx)
 }
 
 func initConfigure() *viper.Viper {
