@@ -16,6 +16,7 @@ import (
 	"homework/models"
 	"homework/mongodb"
 	"log"
+	"net/http"
 	"time"
 )
 
@@ -131,6 +132,21 @@ func main() {
 			}
 		}
 
+	})
+
+	v1 := router.Group("/api/v1")
+	v1.POST("/sendMessage/:userId", func(c *gin.Context) {
+		userId := c.Param("userId")
+		pushMessage := c.DefaultQuery("message", "send empty message")
+		message := linebot.NewTextMessage(pushMessage)
+
+		_, err := bot.PushMessage(userId, message).Do()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": err})
+			log.Print(err)
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "send message successfully!"})
 	})
 
 	router.Run(":80")
