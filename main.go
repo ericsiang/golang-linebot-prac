@@ -12,11 +12,13 @@ import (
 	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"homework/command"
 	"homework/models"
 	"homework/mongodb"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -148,7 +150,101 @@ func main() {
 		}
 		c.JSON(http.StatusOK, gin.H{"message": "send message successfully!"})
 	})
+	v1.GET("/users", func(c *gin.Context) {
+		limitStr := c.DefaultQuery("limit", "10")
+		pageStr := c.DefaultQuery("page", "1")
+		limit, err := strconv.ParseInt(limitStr, 10, 64)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": err})
+			log.Print(err)
+			return
+		}
+		page, err := strconv.ParseInt(pageStr, 10, 64)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": err})
+			log.Print(err)
+			return
+		}
 
+		config := initConfigure()
+		dsn := fmt.Sprintf("mongodb://%s:%s@%s:%d", config.Get("database.user"), config.Get("database.password"), config.Get("database.host"), config.Get("database.port"))
+		client, ctx, err := mongodb.ConnectMongoDb(dsn)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var users []*models.User
+		var findoptions *options.FindOptions
+		findoptions = &options.FindOptions{}
+		findoptions.SetLimit(limit)
+		findoptions.SetSkip(limit * (page - 1))
+		userCollection := mongodb.GetCollection(client, "users")
+		results, err := userCollection.Find(ctx, bson.M{}, findoptions)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": err})
+			log.Print(err)
+			return
+		}
+		for results.Next(ctx) {
+			var singleUser models.User
+			if err = results.Decode(&singleUser); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err})
+				log.Print(err)
+				return
+			}
+			users = append(users, &singleUser)
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "success", "data": users})
+
+	})
+	v1.GET("/lineMessages", func(c *gin.Context) {
+		limitStr := c.DefaultQuery("limit", "10")
+		pageStr := c.DefaultQuery("page", "1")
+		limit, err := strconv.ParseInt(limitStr, 10, 64)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": err})
+			log.Print(err)
+			return
+		}
+		page, err := strconv.ParseInt(pageStr, 10, 64)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": err})
+			log.Print(err)
+			return
+		}
+		config := initConfigure()
+		dsn := fmt.Sprintf("mongodb://%s:%s@%s:%d", config.Get("database.user"), config.Get("database.password"), config.Get("database.host"), config.Get("database.port"))
+		client, ctx, err := mongodb.ConnectMongoDb(dsn)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var lineMessages []*models.LineMessage
+		var findoptions *options.FindOptions
+		findoptions = &options.FindOptions{}
+		findoptions.SetLimit(limit)
+		findoptions.SetSkip(limit * (page - 1))
+		lineMessageCollection := mongodb.GetCollection(client, "lineMessage")
+		results, err := lineMessageCollection.Find(ctx, bson.M{}, findoptions)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": err})
+			log.Print(err)
+			return
+		}
+		for results.Next(ctx) {
+			var singleLineMessage models.LineMessage
+			if err = results.Decode(&singleLineMessage); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err})
+				log.Print(err)
+				return
+			}
+			lineMessages = append(lineMessages, &singleLineMessage)
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "success", "data": lineMessages})
+
+	})
 	router.Run(":80")
 }
 
