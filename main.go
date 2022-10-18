@@ -166,7 +166,6 @@ func main() {
 			return
 		}
 
-		config := initConfigure()
 		dsn := fmt.Sprintf("mongodb://%s:%s@%s:%d", config.Get("database.user"), config.Get("database.password"), config.Get("database.host"), config.Get("database.port"))
 		client, ctx, err := mongodb.ConnectMongoDb(dsn)
 		if err != nil {
@@ -213,7 +212,7 @@ func main() {
 			log.Print(err)
 			return
 		}
-		config := initConfigure()
+
 		dsn := fmt.Sprintf("mongodb://%s:%s@%s:%d", config.Get("database.user"), config.Get("database.password"), config.Get("database.host"), config.Get("database.port"))
 		client, ctx, err := mongodb.ConnectMongoDb(dsn)
 		if err != nil {
@@ -245,7 +244,7 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"message": "success", "data": lineMessages})
 
 	})
-	router.Run(":80")
+	router.Run(":8080")
 }
 
 func initConfigure() *viper.Viper {
