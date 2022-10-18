@@ -1,4 +1,4 @@
-## 台灣資信作業
+## Golang Simple Line Bot Practice( gin+mongoDB )
 
 ### 步驟
 1. 修改配置，config/config.yaml
